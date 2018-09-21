@@ -32,6 +32,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
+import numpy as np
 
 data = pd.read_csv('http://www-bcf.usc.edu/~gareth/ISL/Advertising.csv',index_col=0)
 feature_cols = ['TV','radio','newspaper']
@@ -40,6 +41,30 @@ y = data['sales']
 X_train,X_test,y_train,y_test = train_test_split(X,y,random_state=1)
 linear = LinearRegression()
 linear.fit(X_train,y_train)
+y_pred = linear_predict(X_test)
 print(linear.intercept_) => 2.8769666223179353      #截距
 print(linear.coef_) => [0.04656457 0.17915812 0.00345046]        #系数
 print(list(zip(feature_cols,linear.coef_))) => [('TV', 0.04656456787415026), ('radio', 0.1791581224508884), ('newspaper', 0.0034504647111804065)]
+print(np.sqrt(metrics.mean_squared_error(y_test,y_pred))) => 1.4046514230328948
+
+#cross-validation
+from sklearn.datasets import load_iris
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import cross_val_score
+
+iris = load_iris()
+X = iris.data
+y = iris.target
+knn = KNeighborsClassifier(n_neighbors=5)
+score = cross_val_score(knn,X,y,cv=10,scoring='accuracy')
+print(score) => [1.         0.93333333 1.         1.         0.86666667 0.93333333
+                 0.93333333 1.         1.         1.        ]
+print(score.mean()) => 0.9666666666666668
+
+k_range = range[1,31]
+k_scores = []
+for k in k_range:
+    knn = KNeighborsClassifier(n_neighbors=k)
+    scores = cross_val_score(knn, X, y, cv=10, scoring='accuracy')
+    k_scores.append(scores.mean())
+print(k_scores)
